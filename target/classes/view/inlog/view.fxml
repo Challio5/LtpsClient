@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<?import ltps1516.gr121gr122.view.CustomNavigation?>
+<VBox fx:id="root" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-font: 20px Modena" prefHeight="480.0" prefWidth="800.0" spacing="10.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ltps1516.gr121gr122.control.inlog.ViewController">
+    <children>
+        <Pane/>
+        <CustomNavigation fx:id="navigation" maxWidth="250.0" orientation="HORIZONTAL" prefHeight="40.0" prefWidth="200.0" />
+    </children>
+    <padding>
+        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+    </padding>
+</VBox>

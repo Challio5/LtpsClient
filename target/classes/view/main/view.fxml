@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--stylesheets="@material-fx-v0_3.css"-->
+
+<?import ltps1516.gr121gr122.view.CustomNavigation?>
+<BorderPane fx:id="borderPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="480.0" prefWidth="800.0" style="-fx-font: 20px Modena" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ltps1516.gr121gr122.control.main.ViewController">
+  <top>
+     <ToolBar fx:id="machineStatus" BorderPane.alignment="CENTER">
+       <items>
+           <GridPane fx:id="grid" hgap="150">
+              <children>
+                  <Label fx:id="statusLabel" GridPane.halignment="LEFT" />
+                  <Button onAction="#logout" text="Logout" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+              </children>
+               <columnConstraints>
+                  <ColumnConstraints />
+                  <ColumnConstraints />
+               </columnConstraints>
+               <rowConstraints>
+                  <RowConstraints />
+               </rowConstraints>
+           </GridPane>
+       </items>
+     </ToolBar>
+  </top>
+  <!-- Center will be dynamically created -->
+  <bottom>
+     <!--<Pagination fx:id="pagination" maxPageIndicatorCount="0" pageCount="0" prefHeight="70.0" prefWidth="859.0" BorderPane.alignment="CENTER" />-->
+      <CustomNavigation fx:id="navigation" maxWidth="622.0" orientation="HORIZONTAL" prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+  </bottom>
+   <opaqueInsets>
+      <Insets top="10.0" />
+   </opaqueInsets>
+   <padding>
+      <Insets bottom="20.0" />
+   </padding>
+</BorderPane>
