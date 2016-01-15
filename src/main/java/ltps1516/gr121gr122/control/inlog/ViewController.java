@@ -73,6 +73,10 @@ public class ViewController {
             Parent view = new FXMLLoader().load(Apl.class.getClass().getResourceAsStream("/view/main/view.fxml"));
 
             Stage stage = (Stage) staticRoot.getScene().getWindow();
+            stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
+                System.out.println(newValue.getClass());
+            });
+
             Platform.runLater(() -> stage.setScene(new Scene(view)));
         } catch (IOException e) {
             e.printStackTrace();

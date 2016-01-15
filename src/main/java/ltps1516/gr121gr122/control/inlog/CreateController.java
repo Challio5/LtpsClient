@@ -73,7 +73,7 @@ public class CreateController {
                 });
             } else if (textField.getId().equals("email")) {
                 textField.textProperty().addListener((observable, oldValue, newValue) -> {
-                    if (!newValue.matches("[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}")) textField.setStyle(invalid);
+                    if (!newValue.matches("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}")) textField.setStyle(invalid);
                     else textField.setStyle(valid);
                 });
             } else {

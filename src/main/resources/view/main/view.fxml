@@ -12,7 +12,7 @@
   <top>
      <ToolBar fx:id="machineStatus" BorderPane.alignment="CENTER">
        <items>
-           <GridPane fx:id="grid" hgap="150">
+           <GridPane fx:id="grid" hgap="130">
               <children>
                   <Label fx:id="statusLabel" GridPane.halignment="LEFT" />
                   <Button onAction="#logout" text="Logout" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />

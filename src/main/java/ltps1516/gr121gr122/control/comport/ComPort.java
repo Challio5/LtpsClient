@@ -85,7 +85,7 @@ public class ComPort {
 
                     int mask = SerialPort.MASK_RXCHAR;
                     vendingSerialPort.get().setEventsMask(mask);
-                    vendingSerialPort.get().addEventListener(this::debugInterrupt);
+                    //vendingSerialPort.get().addEventListener(this::debugInterrupt);
 
                     // Register shutdownhook for closing serialport
                     Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -132,7 +132,9 @@ public class ComPort {
 
     private void debugInterrupt(SerialPortEvent event) {
         try {
-            logger.warn(vendingSerialPort.get().readString());
+            for(byte item :vendingSerialPort.get().readBytes()) {
+                logger.warn(item);
+            }
         } catch (SerialPortException e) {
             e.printStackTrace();
         }
@@ -158,9 +160,11 @@ public class ComPort {
                 // Write message
                 logger.info("Send message to MCU: " + vendingSerialPort.get().getPortName());
 
+                /*
                 for(byte item : data) {
                     logger.info(item);
                 }
+                */
 
                 vendingSerialPort.get().writeBytes(buffer.array());
                 // Wait for response
@@ -175,13 +179,19 @@ public class ComPort {
 
                         // Read data and check
                         logger.info("Bytes received from MCU: " + vendingSerialPort.get().getInputBufferBytesCount());
+                        /*
                         for(byte item : vendingSerialPort.get().readBytes()) {
                             logger.info(item);
                         }
+                        */
 
-                        response = Arrays.equals(vendingSerialPort.get().readBytes(), data);
+                        byte[] test = vendingSerialPort.get().readBytes(3);
+                        response = Arrays.equals(test, data);
 
                         logger.info("Comparison result is: " + response);
+                        for(byte item : test) {
+                            logger.info("Byte received: " + item);
+                        }
                     } catch (SerialPortException e ) {
                         logger.warn(e.getMessage());
                     }
@@ -190,7 +200,7 @@ public class ComPort {
                 });
 
                 // Set success
-                success = future.get(5, TimeUnit.SECONDS);
+                success = future.get(30, TimeUnit.SECONDS);
             } catch (SerialPortException | InterruptedException | ExecutionException e) {
                 e.printStackTrace();
             } catch (TimeoutException e) {

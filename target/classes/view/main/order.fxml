@@ -1,32 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 
 <GridPane fx:id="root" vgap="20.0" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ltps1516.gr121gr122.control.main.OrderController">
-   <columnConstraints>
+
+    <columnConstraints>
       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
-   </columnConstraints>
-   <rowConstraints>
+    </columnConstraints>
+
+    <rowConstraints>
       <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
       <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
-   </rowConstraints>
-   <children>
-        <ListView fx:id="orderListView" prefHeight="250.0" prefWidth="200.0" />
-        <TableView fx:id="productOrderTable" prefHeight="233.0" prefWidth="375.0" BorderPane.alignment="CENTER" GridPane.columnIndex="1">
-            <columns>
-                <TableColumn fx:id="amountColumn" prefWidth="125.0" resizable="false" text="Amount" />
-                <TableColumn fx:id="productColumn" prefWidth="125.0" resizable="false" text="Product" />
-                <TableColumn fx:id="priceColumn" prefWidth="125.0" resizable="false" text="Price (€)" />
-            </columns>
-        </TableView>
-      <HBox alignment="CENTER" prefHeight="22.0" prefWidth="530.0" GridPane.columnSpan="2" GridPane.rowIndex="1">
+    </rowConstraints>
+
+    <children>
+       <ListView fx:id="orderListView" prefHeight="250.0" prefWidth="200.0" />
+
+       <TableView fx:id="productOrderTable" editable="true" prefHeight="233.0" prefWidth="375.0" BorderPane.alignment="CENTER" GridPane.columnIndex="1">
+           <columns>
+               <TableColumn editable="true" fx:id="amountColumn" prefWidth="125.0" resizable="false" text="Amount">
+                   <cellValueFactory>
+                       <PropertyValueFactory property="amount"/>
+                   </cellValueFactory>
+               </TableColumn>
+               <TableColumn fx:id="productColumn" editable="false" prefWidth="125.0" resizable="false" text="Product">
+                   <cellValueFactory>
+                       <PropertyValueFactory property="product"/>
+                   </cellValueFactory>
+               </TableColumn>
+               <TableColumn fx:id="priceColumn" editable="false" prefWidth="125.0" resizable="false" text="Price (€)">
+                   <cellValueFactory>
+                       <PropertyValueFactory property="price"/>
+                   </cellValueFactory>
+               </TableColumn>
+           </columns>
+       </TableView>
+
+       <HBox alignment="CENTER" prefHeight="22.0" prefWidth="530.0" GridPane.columnSpan="2" GridPane.rowIndex="1">
          <children>
             <Button fx:id="deleteButton" disable="true" prefWidth="100.0" onAction="#delete" mnemonicParsing="false" text="Delete" />
               <Button fx:id="collectButton" disable="true" mnemonicParsing="false" onAction="#collect" prefHeight="27.0" prefWidth="100.0" text="Collect" />
          </children>
-      </HBox>
+       </HBox>
+
    </children>
 </GridPane>

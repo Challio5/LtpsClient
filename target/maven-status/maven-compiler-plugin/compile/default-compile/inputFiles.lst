@@ -7,6 +7,7 @@
 /Users/rob/IdeaProjects/LtpsClient/src/main/java/ltps1516/gr121gr122/model/user/Product.java
 /Users/rob/IdeaProjects/LtpsClient/src/main/java/ltps1516/gr121gr122/model/machine/Stock.java
 /Users/rob/IdeaProjects/LtpsClient/src/main/java/ltps1516/gr121gr122/model/user/Order.java
+/Users/rob/IdeaProjects/LtpsClient/src/main/java/ltps1516/gr121gr122/view/CustomNavigation.java
 /Users/rob/IdeaProjects/LtpsClient/src/main/java/ltps1516/gr121gr122/model/Model.java
 /Users/rob/IdeaProjects/LtpsClient/src/main/java/ltps1516/gr121gr122/control/api/CrudController.java
 /Users/rob/IdeaProjects/LtpsClient/src/main/java/ltps1516/gr121gr122/control/main/ViewController.java

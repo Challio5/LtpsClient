@@ -93,8 +93,7 @@ public class ProductController {
 
         // Convert products to labels
         productsList.forEach(product -> {
-            CustomLabel<Product> label = new CustomLabel<>(product,
-                    product.getName() + "\n" + product.getDescription() + "\n" + product.getPrice());
+            CustomLabel<Product> label = new CustomLabel<>(product);
 
             label.setOnMouseClicked(this::onMouseClicked);
             labelList.add(label);

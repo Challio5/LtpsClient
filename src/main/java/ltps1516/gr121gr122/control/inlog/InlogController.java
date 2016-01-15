@@ -132,7 +132,7 @@ public class InlogController {
                 alert.getDialogPane().setStyle("-fx-font: 20px Modena; -fx-min-width: 600px");
                 alert.setTitle("Information Dialog");
                 alert.setHeaderText(null);
-                alert.setContentText("NFC not coupled to an account");
+                alert.setContentText("NFC not recognized as account");
                 alert.show();
 
                 // Close after 3 seconds

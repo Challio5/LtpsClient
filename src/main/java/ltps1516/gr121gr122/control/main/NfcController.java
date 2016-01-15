@@ -105,10 +105,10 @@ public class NfcController {
             // Check returned model from API
             if(model != null) {
                 logger.info("Nfc added to API and context");
-                content.set("NFC coupled to your account");
+                Platform.runLater(() -> content.set("NFC coupled to your account"));
                 Context.getInstance().getUser().getNfcList().add(nfc);
             } else {
-                content.set("NFC already coupled to an account");
+                Platform.runLater(() -> content.set("NFC already coupled to an account"));
                 logger.warn("Null returned from server");
             }
 

@@ -57,46 +57,19 @@ public class OrderController {
         context = Context.getInstance();
 
         productOrderTable.setRowFactory(this::rowFactory);
-        orderListView.setCellFactory(this::cellFactory);
+        orderListView.setCellFactory(this::listCellFactory);
 
         context.setSelectedOrderProperty(orderListView.getSelectionModel().selectedItemProperty());
         context.setSelectedProductOrderProperty(productOrderTable.getSelectionModel().selectedItemProperty());
 
-        // Editable
-        productOrderTable.setEditable(true);
-
-        amountColumn.setEditable(true);
-        priceColumn.setEditable(false);
-        productColumn.setEditable(false);
-
         // Set tablecells to columns
         amountColumn.setCellFactory(ComboBoxTableCell.forTableColumn(new IntegerStringConverter(), 1, 2, 3, 4, 5, 6, 7, 8, 9));
-        priceColumn.setCellFactory(new Callback<TableColumn<ProductOrder, Double>, TableCell<ProductOrder, Double>>() {
-            @Override
-            public TableCell<ProductOrder, Double> call(TableColumn<ProductOrder, Double> param) {
-                return new TableCell<ProductOrder, Double>() {
-                    @Override
-                    protected void updateItem(Double item, boolean empty) {
-                        if(item != null && !empty) {
-                            this.setText(String.format("%.2f", item));
-                        } else {
-                            this.setText("");
-                        }
-                    }
-                };
-            }
-        });
+        priceColumn.setCellFactory(this::tableCellFactory);
         productColumn.setCellFactory(TextFieldTableCell.forTableColumn(new ProductConverter()));
-
-        // Set properties to columns
-        amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
-        priceColumn.setCellValueFactory(new PropertyValueFactory<>("price"));
-        productColumn.setCellValueFactory(new PropertyValueFactory<>("product"));
 
         // Set listcell to listview
         orderListView.setItems(context.getUser().getOrders());
 
-        collectButton.setDisable(false);
         // Listen to orderselection
         orderListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             productOrderTable.setItems(newValue.getProductOrderList());
@@ -140,38 +113,20 @@ public class OrderController {
                         alert.setHeaderText(null);
                         alert.setContentText("Wait for product to be collected");
 
-                        alert.show();
                         success = ComPort.getInstance().writeVendingMessage(Protocol.LOCATION, location);
 
                         if(success) {
                             alert.setContentText("Product successfully collected");
+                            logger.info("Product successfully collected: " + productOrder.getProduct());
+                            alert.showAndWait();
                         } else {
                             alert.setContentText("Product could not be collected");
-                        }
-
-                        // Close after 3 seconds
-                        Timeline idlestage = new Timeline(new KeyFrame(
-                                Duration.seconds(3), event1 ->
-                                Platform.runLater(() -> {
-                                    ((Button) alert.getDialogPane().lookupButton(ButtonType.OK)).fire();
-                                    logger.warn("Close window");
-                                })
-                        ));
-
-                        // Play timeline once
-                        idlestage.setCycleCount(1);
-                        idlestage.play();
-
-                        if(success) {
-                            logger.info("Product successfully collected: " + productOrder.getProduct());
-                        } else {
                             logger.info("Collection of products not successfull");
                             break loop;
                         }
-
                     }
                 }
-            
+
             if(success) {
                 logger.info("all orders collected");
 
@@ -193,13 +148,6 @@ public class OrderController {
     public TableRow<ProductOrder> rowFactory(TableView<ProductOrder> param) {
         TableRow<ProductOrder> row = new TableRow<>();
 
-        /*
-        row.setOnSwipeRight(event -> {
-            System.out.println("swipe");
-            row.getTableView().getItems().remove(row.getItem());
-        });
-        */
-
         row.setOnScroll(event -> {
             if(row.isSelected() && context.getSelectedOrder().getError() == null && event.getTotalDeltaX() > 0)
                 row.getTableView().getItems().remove(row.getItem());
@@ -211,9 +159,9 @@ public class OrderController {
         return row;
     }
 
-    // Cell factory with delete swipe for orders
-    public ListCell<Order> cellFactory(ListView<Order> param) {
-        ListCell<Order> cell = new ListCell<Order>() {
+    // Cell factory for displaying orders
+    public ListCell<Order> listCellFactory(ListView<Order> param) {
+        return new ListCell<Order>() {
             @Override
             protected void updateItem(Order item, boolean empty) {
                 super.updateItem(item, empty);
@@ -225,12 +173,19 @@ public class OrderController {
                 }
             }
         };
+    }
 
-        cell.setOnScroll(event -> {
-            if (cell.isSelected() && context.getSelectedOrder().getError() == null && event.getTotalDeltaX() > 0)
-                cell.getListView().getItems().remove(cell.getItem());
-        });
-
-        return cell;
+    // Cell factory for displaying prices
+    public TableCell<ProductOrder, Double> tableCellFactory(TableColumn<ProductOrder, Double> param) {
+        return new TableCell<ProductOrder, Double>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                if(item != null && !empty) {
+                    this.setText(String.format("%.2f", item));
+                } else {
+                    this.setText("");
+                }
+            }
+        };
     }
 }

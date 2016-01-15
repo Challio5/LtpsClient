@@ -2,6 +2,7 @@ package ltps1516.gr121gr122.view;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
@@ -9,6 +10,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.text.TextAlignment;
 import ltps1516.gr121gr122.model.Model;
+import ltps1516.gr121gr122.model.user.Product;
 
 /**
  * Created by rob on 07-01-16.
@@ -17,14 +19,22 @@ public class CustomLabel<T extends Model> extends Label {
     private T model;
     private ObjectMapper mapper;
 
-    public CustomLabel(T model, String text) {
+    public CustomLabel(T model) {
+        this.setPadding(new Insets(10,20,10,20));
+        //this.setPrefWidth(180.0);
+        this.setStyle("-fx-border-color: black; -fx-border-style: solid; -fx-border-width: 1px");
+
         this.setOnDragDetected(this::onDragDetected);
         this.setTextAlignment(TextAlignment.CENTER);
 
         this.model = model;
         this.mapper = new ObjectMapper();
 
-        this.textProperty().set(text);
+        if(model instanceof Product) {
+            Product product = (Product) model;
+            String format = String.format("%s%n%s%n€%.2f" , product.getName(), product.getDescription(), product.getPrice());
+            this.textProperty().set(format);
+        }
     }
 
     public T getModel() {
