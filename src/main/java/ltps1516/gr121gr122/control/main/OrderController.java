@@ -1,25 +1,34 @@
 package ltps1516.gr121gr122.control.main;
 
+import com.sun.javafx.charts.Legend;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
+import ltps1516.gr121gr122.control.api.ApiController;
 import ltps1516.gr121gr122.control.comport.ComPort;
 import ltps1516.gr121gr122.control.comport.Protocol;
 import ltps1516.gr121gr122.control.converter.ProductConverter;
 import ltps1516.gr121gr122.model.Context;
 import ltps1516.gr121gr122.model.machine.Stock;
 import ltps1516.gr121gr122.model.user.Order;
+import ltps1516.gr121gr122.model.user.OrderStatus;
 import ltps1516.gr121gr122.model.user.Product;
 import ltps1516.gr121gr122.model.user.ProductOrder;
 import org.apache.logging.log4j.LogManager;
@@ -32,6 +41,9 @@ public class OrderController {
 
     private Context context;
     private Logger logger;
+
+    // Controller
+    private ApiController apiController;
 
     // Root
     @FXML private GridPane root;
@@ -50,13 +62,18 @@ public class OrderController {
     @FXML private Button deleteButton;
     @FXML private Button collectButton;
 
-    public void initialize() {
+    // FocusedNode
+    private Node focusedNode;
+
+    @FXML private void initialize() {
         logger = LogManager.getLogger(this.getClass().getName());
 
         // Get model instance
         context = Context.getInstance();
 
-        productOrderTable.setRowFactory(this::rowFactory);
+        // Controller to API
+        apiController = new ApiController();
+
         orderListView.setCellFactory(this::listCellFactory);
 
         context.setSelectedOrderProperty(orderListView.getSelectionModel().selectedItemProperty());
@@ -73,7 +90,7 @@ public class OrderController {
         // Listen to orderselection
         orderListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             productOrderTable.setItems(newValue.getProductOrderList());
-            if(ComPort.getInstance().getVendingSerialPort() != null) {
+            //if(ComPort.getInstance().getVendingSerialPort() != null) {
                 if (newValue.getProductOrderList().size() > 0 && newValue.getStatusId() == 1) {
                     collectButton.setDisable(!newValue.getProductOrderList().stream().allMatch(productOrder ->
                             Context.getInstance().getMachine().getStockList().stream().anyMatch(stock ->
@@ -84,13 +101,29 @@ public class OrderController {
                 } else {
                     collectButton.setDisable(true);
                 }
-            }
+            //}
+        });
+
+        new Thread(this::initializeScene).start();
+    }
+
+    // New thread for binding to scene
+    private void initializeScene() {
+        while(root.getScene() == null);
+
+        // Bind delete button
+        deleteButton.disableProperty().bind(
+                Bindings.notEqual(root.getScene().focusOwnerProperty(), productOrderTable).and(
+                        Bindings.notEqual(root.getScene().focusOwnerProperty(), orderListView)).and(
+                        Bindings.notEqual(root.getScene().focusOwnerProperty(), deleteButton)));
+
+        root.getScene().focusOwnerProperty().addListener((observable, oldValue, newValue) -> {
+            focusedNode = oldValue;
         });
     }
 
     // Collect products
-    @FXML
-    public boolean collect(ActionEvent event) {
+    @FXML private boolean collect(ActionEvent event) {
         boolean success = false;
 
         int index = orderListView.getSelectionModel().getSelectedIndex();
@@ -139,44 +172,71 @@ public class OrderController {
         return success;
     }
 
-    @FXML
-    public void delete(ActionEvent event) {
+    @FXML private void delete(ActionEvent event) {
+        if (focusedNode != null) {
+            if (focusedNode.equals(productOrderTable)) {
+                ProductOrder productOrder = productOrderTable.getSelectionModel().getSelectedItem();
 
-    }
+                logger.info("Do delete request for productOrder: " + productOrder.getProduct().getName());
+                boolean success = apiController.getCrudController().delete(productOrder);
 
-    // Row factory with delete swipe for productOrders
-    public TableRow<ProductOrder> rowFactory(TableView<ProductOrder> param) {
-        TableRow<ProductOrder> row = new TableRow<>();
+                logger.info("Delete request is: " + success);
+                if(success) productOrderTable.getItems().remove(productOrder);
 
-        row.setOnScroll(event -> {
-            if(row.isSelected() && context.getSelectedOrder().getError() == null && event.getTotalDeltaX() > 0)
-                row.getTableView().getItems().remove(row.getItem());
+            } else if (focusedNode.equals(orderListView)) {
+                Order order = orderListView.getSelectionModel().getSelectedItem();
 
-            // If last productOrder, delete order
-            if(row.getTableView().getItems().size() == 0) orderListView.getItems().remove(context.getSelectedOrder());
-        });
+                logger.info("Do delete request for order: " + order.getId());
+                boolean success = apiController.getCrudController().delete(order);
 
-        return row;
+                logger.info("Delete request is: " + success);
+                if(success) orderListView.getItems().remove(order);
+
+            } else {
+                logger.warn("Focus on unrecognized node for deleting");
+            }
+        } else {
+            logger.warn("No node previously focused for deleting");
+        }
+
     }
 
     // Cell factory for displaying orders
-    public ListCell<Order> listCellFactory(ListView<Order> param) {
+    private ListCell<Order> listCellFactory(ListView<Order> param) {
         return new ListCell<Order>() {
             @Override
             protected void updateItem(Order item, boolean empty) {
                 super.updateItem(item, empty);
                 if (item != null && !empty) {
+                    switch (item.getStatusId()) {
+                        case 1:
+                            this.setBackground(new Background(new BackgroundFill(
+                                    OrderStatus.getColors().get(0), CornerRadii.EMPTY, Insets.EMPTY))); // Green
+                            break;
+                        case 2:
+                            this.setBackground(new Background(new BackgroundFill(
+                                    OrderStatus.getColors().get(1), CornerRadii.EMPTY, Insets.EMPTY))); // Orange
+                            break;
+                        case 3:
+                            this.setBackground(new Background(new BackgroundFill(
+                                    OrderStatus.getColors().get(2), CornerRadii.EMPTY, Insets.EMPTY))); // Red
+                            break;
+                    }
+
                     textProperty().bind(Bindings.format(
                             "Order: %-20d€%.2f",
                             item.orderIdProperty(),
                             item.orderPriceProperty()));
+                } else {
+                    textProperty().unbind();
+                    textProperty().set("");
                 }
             }
         };
     }
 
     // Cell factory for displaying prices
-    public TableCell<ProductOrder, Double> tableCellFactory(TableColumn<ProductOrder, Double> param) {
+    private TableCell<ProductOrder, Double> tableCellFactory(TableColumn<ProductOrder, Double> param) {
         return new TableCell<ProductOrder, Double>() {
             @Override
             protected void updateItem(Double item, boolean empty) {

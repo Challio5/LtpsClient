@@ -26,12 +26,12 @@
       <Label text="Email" GridPane.rowIndex="3" />
       <Label text="Telephone" GridPane.rowIndex="4" />
       <Label text="Balance" GridPane.rowIndex="5" />
-      <TextField fx:id="username" disable="true" GridPane.columnIndex="1" />
-      <PasswordField fx:id="password" disable="true" layoutX="95.0" layoutY="20.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-      <TextField fx:id="name" disable="true" layoutX="95.0" layoutY="20.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-      <TextField fx:id="email" disable="true" layoutX="95.0" layoutY="94.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-      <TextField fx:id="telephone" disable="true" layoutX="95.0" layoutY="131.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-      <TextField fx:id="balance" disable="true" layoutX="95.0" layoutY="168.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+      <TextField fx:id="username" style="-fx-opacity: 0.4;" editable="false" GridPane.columnIndex="1" />
+      <PasswordField fx:id="password" style="-fx-opacity: 0.4;" editable="false"  layoutX="95.0" layoutY="20.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+      <TextField fx:id="name" style="-fx-opacity: 0.4;" editable="false" layoutX="95.0" layoutY="20.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <TextField fx:id="email" style="-fx-opacity: 0.4;" editable="false" layoutX="95.0" layoutY="94.0" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+      <TextField fx:id="telephone" style="-fx-opacity: 0.4;" editable="false" layoutX="95.0" layoutY="131.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+      <TextField fx:id="balance" style="-fx-opacity: 0.4;" editable="false" layoutX="95.0" layoutY="168.0" GridPane.columnIndex="1" GridPane.rowIndex="5" />
    </children>
    <padding>
       <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

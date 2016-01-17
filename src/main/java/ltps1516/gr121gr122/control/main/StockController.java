@@ -27,7 +27,7 @@ public class StockController {
     @FXML private TableColumn<Stock, Product> stockProductColumn;
     @FXML private TableColumn<Stock, Integer> stockAmountColumn;
 
-    public void initialize() {
+    @FXML private void initialize() {
         logger = LogManager.getLogger(this.getClass().getName());
 
         context = Context.getInstance();

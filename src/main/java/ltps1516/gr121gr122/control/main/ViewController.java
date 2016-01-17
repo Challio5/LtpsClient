@@ -44,7 +44,7 @@ public class ViewController {
     /**
      *
      */
-    public void initialize() {
+    @FXML private void initialize() {
         // Get model instance
         context = Context.getInstance();
 
@@ -82,8 +82,7 @@ public class ViewController {
      * Event handler to logout and load the preloader
      * @param event Event which is fired when clicking the logout button
      */
-    @FXML
-    public void logout(ActionEvent event) {
+    @FXML private void logout(ActionEvent event) {
         // Reset context
         Context.getInstance().reinitialize();
 
@@ -92,7 +91,6 @@ public class ViewController {
             Parent view = new FXMLLoader().load(this.getClass().getResourceAsStream("/view/inlog/view.fxml"));
 
             Scene scene = new Scene(view);
-
             Stage stage = (Stage) borderPane.getScene().getWindow();
             stage.setScene(scene);
         } catch (IOException e) {

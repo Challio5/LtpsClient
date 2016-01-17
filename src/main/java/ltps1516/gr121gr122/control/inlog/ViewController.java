@@ -30,7 +30,7 @@ public class ViewController {
      * Method to initialize controller related to preloader
      * Loads panes with navigation to switch between logging in or creating new users
      */
-    public void initialize() {
+    @FXML private void initialize() {
         staticRoot = root;
 
         try {
@@ -72,12 +72,10 @@ public class ViewController {
         try {
             Parent view = new FXMLLoader().load(Apl.class.getClass().getResourceAsStream("/view/main/view.fxml"));
 
-            Stage stage = (Stage) staticRoot.getScene().getWindow();
-            stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
-                System.out.println(newValue.getClass());
-            });
+            Stage stage = (Stage) staticRoot.getScene().getWindow();;
 
-            Platform.runLater(() -> stage.setScene(new Scene(view)));
+            Scene scene = new Scene(view);
+            Platform.runLater(() -> stage.setScene(scene));
         } catch (IOException e) {
             e.printStackTrace();
         }

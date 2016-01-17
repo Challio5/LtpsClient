@@ -48,7 +48,7 @@ public class CreateController {
     private Logger logger;
     private BooleanProperty valid;
 
-    public void initialize() {
+    @FXML private void initialize() {
         // Model
         context = Context.getInstance();
 
@@ -97,8 +97,7 @@ public class CreateController {
         }
     }
 
-    @FXML
-    private void submit(ActionEvent event) {
+    @FXML private void submit(ActionEvent event) {
         User user = new User();
 
         gridPane.getChildren().stream().filter(node -> node instanceof TextField).forEach(node -> {

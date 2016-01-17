@@ -40,7 +40,7 @@ public class NfcController {
      * Method that initialises the controller when the view is created
      * Binds the appropriate content to the view
      */
-    public void initialize() {
+    @FXML private void initialize() {
         this.logger = LogManager.getLogger(this.getClass().getName());
         this.controller = new ApiController();
 
@@ -74,8 +74,7 @@ public class NfcController {
      * Let's the comport read the nfc id of the card and listens to a change of context
      * Gives feedback with alert windows that close after three seconds
      */
-    @FXML
-    public void connectNFC() {
+    @FXML private void connectNFC() {
         // Create dialog
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.getDialogPane().setStyle("-fx-font: 20px Modena; -fx-min-width: 600px;");

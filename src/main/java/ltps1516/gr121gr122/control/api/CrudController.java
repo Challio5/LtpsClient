@@ -141,6 +141,7 @@ public class CrudController {
 
     public boolean delete(Model object) {
         logger.info("Delete-request of: " + object);
+        boolean success = false;
 
         try {
             Response response = webTarget
@@ -149,10 +150,11 @@ public class CrudController {
                     .delete();
 
             logger.info("Response of server: " + response.getStatusInfo());
+            if (Response.Status.fromStatusCode(response.getStatus()) == Response.Status.OK) success = true;
         } catch (WebApplicationException e) {
             logger.warn(e.getMessage());
         }
 
-        return true;
+        return success;
     }
 }

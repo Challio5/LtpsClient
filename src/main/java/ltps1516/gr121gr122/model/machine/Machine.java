@@ -19,7 +19,7 @@ public class Machine implements Model {
     private StringProperty location;
     private StringProperty description;
     private IntegerProperty statusId;
-    private ObjectProperty<Status> machineStatus;
+    private ObjectProperty<MachineStatus> machineStatus;
 
     @JsonIgnore
     private ObservableList<Stock> stockList;
@@ -29,7 +29,7 @@ public class Machine implements Model {
             @JsonProperty("location") String location,
             @JsonProperty("description") String description,
             @JsonProperty("statusId") int statusId,
-            @JsonProperty("status") Status machineStatus,
+            @JsonProperty("status") MachineStatus machineStatus,
             @JsonProperty("stock") Stock[] stockList)
     {
         this.machineId = new SimpleIntegerProperty(machineId);
@@ -51,7 +51,7 @@ public class Machine implements Model {
         this.location = new SimpleStringProperty("Casanova");
         this.description = new SimpleStringProperty("SuperMachine");
         this.statusId = new SimpleIntegerProperty(3);
-        this.machineStatus = new SimpleObjectProperty<>(new Status());
+        this.machineStatus = new SimpleObjectProperty<>(new MachineStatus());
         this.stockList = FXCollections.observableArrayList(new Stock());
     }
 
@@ -89,11 +89,11 @@ public class Machine implements Model {
         return statusId;
     }
 
-    public Status getMachineStatus() {
+    public MachineStatus getMachineStatus() {
         return machineStatus.get();
     }
 
-    public ObjectProperty<Status> machineStatusProperty() {
+    public ObjectProperty<MachineStatus> machineStatusProperty() {
         return machineStatus;
     }
 

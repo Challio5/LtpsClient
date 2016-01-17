@@ -50,7 +50,7 @@ public class InlogController {
      * Method to initialize the controller related to the inlogview
      * Adds
      */
-    public void initialize() {
+    @FXML private void initialize() {
         // Create apiController
         apiController = new ApiController();
 
@@ -154,8 +154,7 @@ public class InlogController {
      * @param event
      * @throws Exception
      */
-    @FXML
-    private void submit(Event event) throws Exception {
+    @FXML private void submit(Event event) throws Exception {
         // Return when keyevent not equals enter
         if(event instanceof KeyEvent) {
             if (((KeyEvent) event).getCode() != KeyCode.ENTER) return;

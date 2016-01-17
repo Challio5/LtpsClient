@@ -179,12 +179,15 @@ public class ApiController {
     }
 
     // Method to post products to API
-    public void postProducts() {
+    public long postProducts() {
         logger.info("Create order on server");
 
         // Create JSON for posting order
         String json = "{\"userId\": " + Context.getInstance().getUser().getId() + "}";
         ObservableList<ProductOrder> products = Context.getInstance().getOrderList();
+
+        // Order to be created
+        Order order = null;
 
         // Post order with productOrders
         try {
@@ -194,29 +197,35 @@ public class ApiController {
                     .request(MediaType.APPLICATION_JSON)
                     .post(Entity.entity(json, MediaType.APPLICATION_JSON));
 
-            Order order = response.readEntity(Order.class);
+            order = response.readEntity(Order.class);
             logger.info("Order posted: " + order);
 
             // Post productOrders with id fro order
+            final Order finalOrder = order;
             IntStream.range(0, products.size()).forEach(i -> {
                 // Set orderId of productOrder
                 ProductOrder productOrder = products.get(i);
-                productOrder.setOrderId((int) order.getId());
+                productOrder.setOrderId((int) finalOrder.getId());
 
                 // Post productOrder
                 ProductOrder postedProductOrder = (ProductOrder) crudController.create(productOrder);
                 logger.info("ProductOrder posted: " + postedProductOrder);
 
-                order.getProductOrderList().add(postedProductOrder);
+                finalOrder.getProductOrderList().add(postedProductOrder);
             });
 
             // Set model
             //order.setOrderPrice(order.getProductOrderList().stream().mapToDouble(ProductOrder::getPrice).sum());
-            System.out.println(order);
             Context.getInstance().getUser().getOrders().add(order);
             logger.info("Order added to context: " + order);
         } catch (WebApplicationException e) {
-            System.out.println(e.getMessage());
+            logger.warn(e.getMessage());
+        }
+
+        if(order != null) {
+            return order.getId();
+        } else {
+            return -1;
         }
     }
 

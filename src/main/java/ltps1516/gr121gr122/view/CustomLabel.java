@@ -3,6 +3,7 @@ package ltps1516.gr121gr122.view;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.Dragboard;
@@ -20,12 +21,13 @@ public class CustomLabel<T extends Model> extends Label {
     private ObjectMapper mapper;
 
     public CustomLabel(T model) {
-        this.setPadding(new Insets(10,20,10,20));
-        //this.setPrefWidth(180.0);
+        this.setPadding(new Insets(10));
+        this.setPrefWidth(180);
         this.setStyle("-fx-border-color: black; -fx-border-style: solid; -fx-border-width: 1px");
 
         this.setOnDragDetected(this::onDragDetected);
         this.setTextAlignment(TextAlignment.CENTER);
+        this.setAlignment(Pos.CENTER);
 
         this.model = model;
         this.mapper = new ObjectMapper();
