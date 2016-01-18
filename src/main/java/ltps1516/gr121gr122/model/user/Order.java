@@ -8,7 +8,7 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import ltps1516.gr121gr122.model.Error;
+import ltps1516.gr121gr122.model.Context;
 import ltps1516.gr121gr122.model.Model;
 
 
@@ -19,14 +19,13 @@ import ltps1516.gr121gr122.model.Model;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Order implements Model {
     private IntegerProperty orderId;
-    private IntegerProperty statusId;
     private DoubleProperty orderPrice;
 
     @JsonIgnore
-    private ListProperty<ProductOrder> productOrderList;
+    private ObjectProperty<OrderStatus> statusId;
 
     @JsonIgnore
-    private ObjectProperty<Error> error;
+    private ListProperty<ProductOrder> productOrderList;
 
     public Order(
             @JsonProperty("orderId") int orderId,
@@ -36,29 +35,27 @@ public class Order implements Model {
     ) {
         // Read properties
         this.orderId = new SimpleIntegerProperty(orderId);
-        this.statusId = new SimpleIntegerProperty(statusId);
+
         this.orderPrice = new SimpleDoubleProperty(orderPrice);
 
         // Create list and add productOrders
         this.productOrderList = new SimpleListProperty<>(
                 FXCollections.observableArrayList((productOrder) -> new Observable[] {productOrder.amountProperty()}));
         this.productOrderList.addAll(productOrders);
+        //Collections.sort(productOrderList, (item1, item2) -> item1.getId() > item2.getId()?(int)item2.getId():(int)item1.getId());
 
         // Bind total price of order
         this.orderPrice.bind(Bindings.createDoubleBinding(() ->
                 this.productOrderList.stream().mapToDouble(ProductOrder::getPrice).sum(), productOrderList));
 
-        //
-        this.error = new SimpleObjectProperty<>();
+        this.statusId = new SimpleObjectProperty<>(OrderStatus.convert(statusId - 1));
     }
 
     // Test constructor
     public Order(String test) {
         this.orderId = new SimpleIntegerProperty(1);
-        this.statusId = new SimpleIntegerProperty(3);
+        this.statusId = new SimpleObjectProperty<>(OrderStatus.PAYD);
         this.orderPrice = new SimpleDoubleProperty(0.0);
-
-        this.error = new SimpleObjectProperty<>();
 
         ProductOrder productOrder = new ProductOrder("");
         productOrderList = new SimpleListProperty<>(FXCollections.observableArrayList(productOrder));
@@ -71,8 +68,27 @@ public class Order implements Model {
                 ", statusId=" + statusId +
                 ", orderPrice=" + orderPrice +
                 ", productOrderList=" + productOrderList +
-                ", error=" + error +
                 '}';
+    }
+
+    public void stockAndBalanceCheck() {
+        if(this.statusId.get() != OrderStatus.PAYDANDCOLLECTED) {
+            // Stock check
+            boolean outOfStock = !this.getProductOrderList().stream().allMatch(productOrder ->
+                    Context.getInstance().getMachine().getStockList().stream().anyMatch(stock ->
+                            stock.getProduct().getId() == productOrder.getProduct().getId() &&
+                                    productOrder.getAmount() <= stock.getAmount()
+                    ));
+
+            // Balance check (Overrules stock check)
+            boolean outOfBalance = this.getOrderPrice() > Context.getInstance().getUser().getBalance();
+
+            if (outOfBalance) {
+                this.statusId.set(OrderStatus.OUTOFBALANCE);
+            } else if (outOfStock) {
+                this.statusId.set(OrderStatus.OUTOFSTOCK);
+            }
+        }
     }
 
     // Getters
@@ -82,15 +98,21 @@ public class Order implements Model {
         return orderId.get();
     }
 
+    @JsonProperty("status")
+    public int getStatus() {
+        return statusId.get().ordinal() + 1;
+    }
+
     public IntegerProperty orderIdProperty() {
         return orderId;
     }
 
-    public int getStatusId() {
+    @JsonIgnore
+    public OrderStatus getStatusId() {
         return statusId.get();
     }
 
-    public IntegerProperty statusIdProperty() {
+    public ObjectProperty<OrderStatus> statusIdProperty() {
         return statusId;
     }
 
@@ -106,24 +128,12 @@ public class Order implements Model {
         return productOrderList;
     }
 
-    public Error getError() {
-        return error.get();
-    }
-
-    public ObjectProperty<Error> errorProperty() {
-        return error;
-    }
-
     // Setters
     public void setProductOrderList(ObservableList<ProductOrder> productOrderList) {
         this.productOrderList.set(productOrderList);
     }
 
-    public void setError(Error error) {
-        this.error.set(error);
-    }
-
-    public void setStatusId(int statusId) {
+    public void setStatusId(OrderStatus statusId) {
         this.statusId.set(statusId);
     }
 

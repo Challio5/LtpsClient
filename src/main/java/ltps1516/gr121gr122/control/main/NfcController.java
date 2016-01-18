@@ -7,7 +7,6 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.util.Callback;
 import javafx.util.Duration;
 import ltps1516.gr121gr122.control.api.ApiController;
 import ltps1516.gr121gr122.control.comport.ComPort;

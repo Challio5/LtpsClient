@@ -1,18 +1,11 @@
 package ltps1516.gr121gr122.control;
 
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-import ltps1516.gr121gr122.control.comport.ComPort;
-import ltps1516.gr121gr122.model.Context;
-import ltps1516.gr121gr122.model.machine.Machine;
-import ltps1516.gr121gr122.model.user.Product;
-import ltps1516.gr121gr122.model.user.User;
+import ltps1516.gr121gr122.control.api.ApiController;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -20,6 +13,8 @@ import org.apache.logging.log4j.Logger;
  * Created by rob on 30-11-15.
  */
 
+// ToDo PATCH USER enable account
+// ToDo STOCK if product not available at all
 public class Apl extends Application {
 
     public static void main(String[] args) {

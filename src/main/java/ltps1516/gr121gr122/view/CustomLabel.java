@@ -21,17 +21,25 @@ public class CustomLabel<T extends Model> extends Label {
     private ObjectMapper mapper;
 
     public CustomLabel(T model) {
-        this.setPadding(new Insets(10));
-        this.setPrefWidth(180);
-        this.setStyle("-fx-border-color: black; -fx-border-style: solid; -fx-border-width: 1px");
-
-        this.setOnDragDetected(this::onDragDetected);
-        this.setTextAlignment(TextAlignment.CENTER);
-        this.setAlignment(Pos.CENTER);
-
+        // Initialize fields
         this.model = model;
         this.mapper = new ObjectMapper();
 
+        // Set padding and width of label
+        this.setPadding(new Insets(10));
+        this.setPrefWidth(180);
+
+        // Align label and his text to center
+        this.setTextAlignment(TextAlignment.CENTER);
+        this.setAlignment(Pos.CENTER);
+
+        // Style background as default JavaFX
+        this.setStyle("-fx-background-color: -fx-box-border, -fx-control-inner-background; -fx-background-insets: 0, 1;");
+
+        // Enable dragging of label
+        this.setOnDragDetected(this::onDragDetected);
+
+        // Set text if productLabel
         if(model instanceof Product) {
             Product product = (Product) model;
             String format = String.format("%s%n%s%n€%.2f" , product.getName(), product.getDescription(), product.getPrice());
@@ -39,14 +47,17 @@ public class CustomLabel<T extends Model> extends Label {
         }
     }
 
+    // Get model attached to label
     public T getModel() {
         return model;
     }
 
+    // Set model attached to label
     public void setModel(T model) {
         this.model = model;
     }
 
+    // Deserialize label as JSON
     public String toJson() {
         String result = "";
 
@@ -58,7 +69,6 @@ public class CustomLabel<T extends Model> extends Label {
 
         return result;
     }
-
 
     // Serialize productorder when dragged
     private void onDragDetected(MouseEvent event) {

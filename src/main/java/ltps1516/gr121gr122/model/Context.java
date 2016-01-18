@@ -28,6 +28,7 @@ public class Context {
     // Model
     private ObjectProperty<Machine> machine;
     private ObjectProperty<User> user;
+    private DoubleProperty balance;
 
     private ObservableList<Product> productList;
     private ObservableList<ProductOrder> orderList;
@@ -51,6 +52,7 @@ public class Context {
 
         this.machine = new SimpleObjectProperty<>();
         this.user = new SimpleObjectProperty<>(new User());
+        this.balance = new SimpleDoubleProperty();
 
         this.productList = FXCollections.observableArrayList();
         this.orderList = FXCollections.observableArrayList();
@@ -87,6 +89,19 @@ public class Context {
 
     public void setUser(User user) {
         this.user.set(user);
+    }
+
+    // Balance
+    public double getBalance() {
+        return balance.get();
+    }
+
+    public DoubleProperty balanceProperty() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance.set(balance);
     }
 
     // NfcId

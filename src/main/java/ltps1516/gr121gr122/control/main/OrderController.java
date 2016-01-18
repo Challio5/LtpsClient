@@ -1,9 +1,5 @@
 package ltps1516.gr121gr122.control.main;
 
-import com.sun.javafx.charts.Legend;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,15 +7,11 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.ComboBoxTableCell;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
-import javafx.util.Callback;
-import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 import ltps1516.gr121gr122.control.api.ApiController;
 import ltps1516.gr121gr122.control.comport.ComPort;
@@ -90,18 +82,13 @@ public class OrderController {
         // Listen to orderselection
         orderListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             productOrderTable.setItems(newValue.getProductOrderList());
-            //if(ComPort.getInstance().getVendingSerialPort() != null) {
-                if (newValue.getProductOrderList().size() > 0 && newValue.getStatusId() == 1) {
-                    collectButton.setDisable(!newValue.getProductOrderList().stream().allMatch(productOrder ->
-                            Context.getInstance().getMachine().getStockList().stream().anyMatch(stock ->
-                                    stock.getProduct().getId() == productOrder.getProduct().getId() &&
-                                            productOrder.getAmount() <= stock.getAmount()
-                            )
-                    ));
-                } else {
+            if(ComPort.getInstance().getVendingSerialPort() != null) {
+                if (newValue.getStatusId() != OrderStatus.ORDERED) {
                     collectButton.setDisable(true);
+                } else {
+                    collectButton.setDisable(false);
                 }
-            //}
+            }
         });
 
         new Thread(this::initializeScene).start();
@@ -164,7 +151,7 @@ public class OrderController {
                 logger.info("all orders collected");
 
                 // ToDo collect order post
-                order.setStatusId(3);
+                order.setStatusId(OrderStatus.PAYDANDCOLLECTED);
                 collectButton.setDisable(true);
             }
         }
@@ -208,20 +195,9 @@ public class OrderController {
             protected void updateItem(Order item, boolean empty) {
                 super.updateItem(item, empty);
                 if (item != null && !empty) {
-                    switch (item.getStatusId()) {
-                        case 1:
-                            this.setBackground(new Background(new BackgroundFill(
-                                    OrderStatus.getColors().get(0), CornerRadii.EMPTY, Insets.EMPTY))); // Green
-                            break;
-                        case 2:
-                            this.setBackground(new Background(new BackgroundFill(
-                                    OrderStatus.getColors().get(1), CornerRadii.EMPTY, Insets.EMPTY))); // Orange
-                            break;
-                        case 3:
-                            this.setBackground(new Background(new BackgroundFill(
-                                    OrderStatus.getColors().get(2), CornerRadii.EMPTY, Insets.EMPTY))); // Red
-                            break;
-                    }
+                    this.backgroundProperty().bind(Bindings.createObjectBinding(() ->
+                            new Background(new BackgroundFill(
+                                item.getStatusId().color(), CornerRadii.EMPTY, Insets.EMPTY)), item.statusIdProperty()));
 
                     textProperty().bind(Bindings.format(
                             "Order: %-20d€%.2f",

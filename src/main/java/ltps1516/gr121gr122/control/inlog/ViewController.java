@@ -10,8 +10,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import ltps1516.gr121gr122.control.Apl;
+import ltps1516.gr121gr122.control.api.ApiController;
 import ltps1516.gr121gr122.control.comport.ComPort;
 import ltps1516.gr121gr122.view.CustomNavigation;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 
@@ -26,40 +29,55 @@ public class ViewController {
     // Static hack
     private static VBox staticRoot;
 
+    // Logger
+    private Logger logger;
+
     /**
      * Method to initialize controller related to preloader
      * Loads panes with navigation to switch between logging in or creating new users
      */
     @FXML private void initialize() {
-        staticRoot = root;
+        logger = LogManager.getLogger(this.getClass().getName());
 
-        try {
-            // Load pane
-            Pane pane1 = new FXMLLoader().load(this.getClass().getResourceAsStream("/view/inlog/inlog.fxml"));
-            Pane pane2 = new FXMLLoader().load(this.getClass().getResourceAsStream("/view/inlog/create.fxml"));
+        if(new ApiController().serverCheck()) {
+            staticRoot = root;
 
-            // Id for navigation
-            pane1.setId("inlog");
-            pane2.setId("create");
+            try {
+                // Load pane
+                Pane pane1 = new FXMLLoader().load(this.getClass().getResourceAsStream("/view/inlog/inlog.fxml"));
+                Pane pane2 = new FXMLLoader().load(this.getClass().getResourceAsStream("/view/inlog/create.fxml"));
 
-            // Initialize navigation
-            navigation.setVBox(root);
-            navigation.getItems().addAll(pane1, pane2);
-            navigation.getSelectionModel().selectFirst();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                // Id for navigation
+                pane1.setId("inlog");
+                pane2.setId("create");
 
-        // Check comport
-        ComPort comPort = ComPort.getInstance();
-        if(comPort.getNfcSerialPort() == null) {
-            Label label = new Label("No NFC reader connected");
+                // Initialize navigation
+                navigation.setVBox(root);
+                navigation.getItems().addAll(pane1, pane2);
+                navigation.getSelectionModel().selectFirst();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // Check comport
+            ComPort comPort = ComPort.getInstance();
+            if (comPort.getNfcSerialPort() == null) {
+                Label label = new Label("No NFC reader connected");
+                label.setStyle("-fx-text-fill: red");
+                root.getChildren().add(label);
+            }
+            if (comPort.getVendingSerialPort() == null) {
+                Label label = new Label("No motor control board connected");
+                label.setStyle("-fx-text-fill: red");
+                root.getChildren().add(label);
+            }
+        } else {
+            logger.warn("No connection to server");
+
+            Label label = new Label("Server is not available");
             label.setStyle("-fx-text-fill: red");
-            root.getChildren().add(label);
-        }
-        if(comPort.getVendingSerialPort() == null) {
-            Label label = new Label("No motor control board connected");
-            label.setStyle("-fx-text-fill: red");
+
+            root.getChildren().clear();
             root.getChildren().add(label);
         }
     }

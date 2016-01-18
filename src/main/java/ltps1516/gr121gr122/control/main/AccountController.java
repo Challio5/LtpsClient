@@ -2,16 +2,10 @@ package ltps1516.gr121gr122.control.main;
 
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.text.Text;
 import javafx.util.converter.NumberStringConverter;
 import ltps1516.gr121gr122.control.api.ApiController;
 import ltps1516.gr121gr122.control.api.CrudController;

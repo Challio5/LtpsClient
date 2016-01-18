@@ -4,13 +4,9 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import ltps1516.gr121gr122.model.Context;
-import ltps1516.gr121gr122.model.Error;
 import ltps1516.gr121gr122.model.machine.Machine;
 import ltps1516.gr121gr122.model.machine.Stock;
-import ltps1516.gr121gr122.model.user.Order;
-import ltps1516.gr121gr122.model.user.Product;
-import ltps1516.gr121gr122.model.user.ProductOrder;
-import ltps1516.gr121gr122.model.user.User;
+import ltps1516.gr121gr122.model.user.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.client.HttpUrlConnectorProvider;
@@ -24,9 +20,8 @@ import javax.ws.rs.client.ResponseProcessingException;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.io.*;
+import java.net.*;
 import java.util.stream.IntStream;
 
 /**
@@ -51,15 +46,7 @@ public class ApiController {
     // Logger
     private Logger logger;
 
-        // Test
-        public ApiController(String test) {
-            host = "";
-            port = "";
-
-            crudController = new CrudController();
-        }
-
-        public CrudController getCrudController() {
+    public CrudController getCrudController() {
             return crudController;
         }
 
@@ -90,21 +77,30 @@ public class ApiController {
         crudController = new CrudController(authWebTarget);
     }
 
-    // Server check
     public boolean serverCheck() {
         boolean success = false;
 
-        try {
-            //Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, Integer.parseInt(port)));
+        try(Socket socket = new Socket()) {
+            SocketAddress address = new InetSocketAddress(host.substring(7), Integer.parseInt(port));
+            socket.connect(address, 5000);
 
-            //System.out.println(proxy.address());
-            new Socket(host, Integer.parseInt(port));
-            success = true;
-        }
-        catch (UnknownHostException e) {
-            logger.warn("Server not reachable");
-        }
-        catch (IOException e) {
+            // Open writer to host
+            PrintWriter outputWriter = new PrintWriter(socket.getOutputStream());
+
+            // Send request
+            outputWriter.println("GET / HTTP/1.1");
+            outputWriter.println("Host: " + host.substring(7));
+            outputWriter.println();
+            outputWriter.flush();
+
+            // Open reader from host
+            BufferedReader stream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            // Read response and check
+            String response = stream.readLine();
+            stream.close();
+            if(response != null && response.endsWith("200 OK")) success = true;
+        } catch (IOException e) {
             logger.warn(e.getMessage());
         }
 
@@ -139,29 +135,19 @@ public class ApiController {
 
         logger.info("Response with user data " + user);
 
+        // Update context
+        context.setUser(user);
+
         // Add listeners for each order
         user.getOrders().forEach(order -> {
+            // Check orders with stock and balance
+            order.stockAndBalanceCheck();
+
             // Listener for checking orderstatus (collect)
             order.statusIdProperty().addListener(this::statusListener);
             order.getProductOrderList()
                     .forEach(productOrder -> productOrder.amountProperty().addListener(this::amountListener));
-
-            /*
-            // Get disabled property
-            Response orderCheck = authWebTarget
-                    .path("order/collect_order")
-                    .queryParam("orderId", order.getId())
-                    .queryParam("machineId", context.getMachine().getId())
-                    .request(MediaType.APPLICATION_JSON)
-                    .get();
-
-            // Check if collectable
-            if(orderCheck.getLength() > 0) order.setError(new Error());
-            */
         });
-
-        // Update context
-        context.setUser(user);
     }
 
     // Method to get products from API
@@ -230,8 +216,8 @@ public class ApiController {
     }
 
     // Statuslistener (update order status to collected in API)
-    public void statusListener(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-        if (newValue != null) {
+    private void statusListener(ObservableValue<? extends OrderStatus> observable, OrderStatus oldValue, OrderStatus newValue) {
+        if (newValue != null && newValue != OrderStatus.OUTOFSTOCK) {
             try {
                 // Url for patching order
                 logger.info("Patch order " + context.getSelectedOrder().getId());
@@ -240,6 +226,7 @@ public class ApiController {
                 Stock[] stock = authWebTarget
                         .path("order/collect_order")
                         .queryParam("orderId", context.getSelectedOrder().getId())
+                        //.queryParam("machineId", context.getMachine().getId())
                         .request(MediaType.APPLICATION_JSON)
                         .post(Entity.entity("", MediaType.TEXT_PLAIN), Stock[].class);
 
@@ -255,30 +242,29 @@ public class ApiController {
                 );
 
                 // Update user/order
-                context.getSelectedOrder().setError(new Error());
                 context.getUser().setBalance(
                         context.getUser().getBalance() -
                                 context.getSelectedOrder().getOrderPrice());
+
+                // Check orders with stock and balance
+                context.getUser().getOrders().forEach(Order::stockAndBalanceCheck);
             } catch (WebApplicationException e) {
                 logger.warn(e.getMessage());
             }
         }
     }
 
-    // ToDo check new amount with stock (Dis/En able collect button)
     // Amount listener (update productOrder amount with API)
-    public void amountListener(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+    private void amountListener(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
         try {
             logger.info("Patch productOrder " + context.getSelectedProductOrder().getId()
                     + " with new amount: " + context.getSelectedProductOrder().getAmount());
 
+            // Update order with new amount
             crudController.update(context.getSelectedProductOrder());
-            /*
-            authWebTarget
-                    .path("product_order/" + context.getSelectedProductOrder().getId())
-                    .request()
-                    .method("PATCH", Entity.entity(context.getSelectedProductOrder(), MediaType.APPLICATION_JSON));
-                    */
+
+            // Check orders with stock
+            context.getSelectedOrder().stockAndBalanceCheck();
         } catch(WebApplicationException e) {
             logger.warn(e.getMessage());
         }

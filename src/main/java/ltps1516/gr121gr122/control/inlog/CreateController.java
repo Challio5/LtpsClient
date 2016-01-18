@@ -3,13 +3,9 @@ package ltps1516.gr121gr122.control.inlog;
 import javafx.beans.property.BooleanProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.stage.Stage;
 import ltps1516.gr121gr122.control.api.ApiController;
 import ltps1516.gr121gr122.model.Context;
 import ltps1516.gr121gr122.model.Model;
@@ -17,8 +13,6 @@ import ltps1516.gr121gr122.model.user.User;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.swing.text.View;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
@@ -84,17 +78,13 @@ public class CreateController {
             }
         });
 
-        if(true) { //controller.serverCheck()
-            // Bind validation result
-            submitButton.disableProperty().bind(
-                    username.styleProperty().isNotEqualTo(valid).or(
-                    password.styleProperty().isNotEqualTo(valid)).or(
-                    name.styleProperty().isNotEqualTo(valid)).or(
-                    email.styleProperty().isNotEqualTo(valid)).or(
-                    telephone.styleProperty().isNotEqualTo(valid)));
-        } else {
-            submitButton.setDisable(true);
-        }
+        // Bind validation result
+        submitButton.disableProperty().bind(
+                username.styleProperty().isNotEqualTo(valid).or(
+                password.styleProperty().isNotEqualTo(valid)).or(
+                name.styleProperty().isNotEqualTo(valid)).or(
+                email.styleProperty().isNotEqualTo(valid)).or(
+                telephone.styleProperty().isNotEqualTo(valid)));
     }
 
     @FXML private void submit(ActionEvent event) {

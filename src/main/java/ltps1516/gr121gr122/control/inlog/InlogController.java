@@ -6,15 +6,11 @@ import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.event.Event;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import ltps1516.gr121gr122.control.api.ApiController;
 import ltps1516.gr121gr122.control.comport.ComPort;
@@ -25,7 +21,6 @@ import org.apache.logging.log4j.Logger;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 
 
 /**
@@ -58,52 +53,43 @@ public class InlogController {
         errorLabel = new Label();
         errorLabel.setTextFill(Color.RED);
 
-        // Servercheck
-        if(true) { //apiController.serverCheck()
-            // Read machineId from properties
-            int machineId = Integer.parseInt(
-                    Context.getInstance().getProperties().getProperty("machineId"));
+        // Read machineId from properties
+        int machineId = Integer.parseInt(
+                Context.getInstance().getProperties().getProperty("machineId"));
 
-            try {
-                // Get machinedata with id
-                apiController.getMachineData(machineId);
-                logger.info("Successfully got data for machine with id: " + machineId);
-            } catch (WebApplicationException e) {
-                // Log exception
-                logger.warn(e.getMessage());
+        try {
+            // Get machinedata with id
+            apiController.getMachineData(machineId);
+            logger.info("Successfully got data for machine with id: " + machineId);
+        } catch (WebApplicationException e) {
+            // Log exception
+            logger.warn(e.getMessage());
 
-                // Disable login fields
-                usernameField.setDisable(true);
-                passwordField.setDisable(true);
-                submitButton.setDisable(true);
-
-                // Create error label
-                root.getChildren().add(errorLabel);
-
-                // Read status code and give feedback to user
-                int statusCode = e.getResponse().getStatus();
-                switch (Response.Status.fromStatusCode(statusCode)) {
-                    case UNAUTHORIZED:
-                        errorLabel.setText("Machine has no access to data, contact admin");
-                        break;
-                    case NO_CONTENT:
-                        errorLabel.setText("Machine does not exist");
-                        break;
-                }
-            }
-
-            // Listen for NFC inlog card
-            Context.getInstance().userProperty().addListener(this::nfcInlogListener);
-
-            // Turn on listener
-            ComPort.getInstance().toggleNfcInlogInterrupt();
-        } else {
-            Label label = new Label("Server is not available");
-            label.setStyle("-fx-text-fill: red");
-
-            root.getChildren().add(label);
+            // Disable login fields
+            usernameField.setDisable(true);
+            passwordField.setDisable(true);
             submitButton.setDisable(true);
+
+            // Create error label
+            root.getChildren().add(errorLabel);
+
+            // Read status code and give feedback to user
+            int statusCode = e.getResponse().getStatus();
+            switch (Response.Status.fromStatusCode(statusCode)) {
+                case UNAUTHORIZED:
+                    errorLabel.setText("Machine has no access to data, contact admin");
+                    break;
+                case NO_CONTENT:
+                    errorLabel.setText("Machine does not exist");
+                    break;
+            }
         }
+
+        // Listen for NFC inlog card
+        Context.getInstance().userProperty().addListener(this::nfcInlogListener);
+
+        // Turn on listener
+        ComPort.getInstance().toggleNfcInlogInterrupt();
     }
 
     /**
